@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SES Prospector</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--g2:#1A7A4A;--g3:#2EA664;--g4:#5DC994;--dark:#0D1F14;--gray:#5A7A67;--amber:#F0A500;--solar:#F59E0B;--hot:#EF4444;--syne:'Syne',sans-serif;--dm:'DM Sans',sans-serif}
+html,body{min-height:100vh;background:var(--dark);font-family:var(--dm);color:#fff}
+header{background:linear-gradient(135deg,#0A2416,#0F3020);border-bottom:1px solid rgba(46,166,100,.2);padding:15px 32px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px}
+.li{width:32px;height:32px;background:var(--g2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.lt{font-family:var(--syne);font-size:15px;font-weight:800}
+.ls{font-size:9px;color:var(--g4);letter-spacing:1px}
+.ht{margin-left:auto;background:rgba(46,166,100,.12);border:1px solid rgba(46,166,100,.22);padding:3px 10px;border-radius:20px;font-size:10px;color:var(--g4);font-weight:700}
+main{max-width:1100px;margin:0 auto;padding:28px 24px 80px}
+.sc{background:linear-gradient(135deg,#0F2D1A,#112815);border:1px solid rgba(46,166,100,.22);border-radius:13px;padding:26px 30px;margin-bottom:22px;box-shadow:0 6px 32px rgba(0,0,0,.4)}
+.st{font-family:var(--syne);font-size:21px;font-weight:800;margin-bottom:4px}
+.st span{color:var(--g3)}
+.sd{font-size:12px;color:rgba(200,232,213,.5);margin-bottom:18px;line-height:1.65}
+.sr{display:grid;grid-template-columns:1fr 125px 125px 125px auto;gap:8px;align-items:end}
+.fd{display:flex;flex-direction:column;gap:5px}
+.fd label{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--g4);text-transform:uppercase}
+.fd input,.fd select{background:rgba(255,255,255,.06);border:1px solid rgba(46,166,100,.2);border-radius:8px;padding:9px 11px;font-size:12.5px;color:#fff;font-family:var(--dm);outline:none}
+.fd input::placeholder{color:rgba(255,255,255,.22)}
+.fd input:focus,.fd select:focus{border-color:var(--g3)}
+.fd select option{background:#1a3a24}
+.acw{position:relative}
+.acl{position:absolute;top:calc(100% + 3px);left:0;right:0;z-index:200;background:#122419;border:1px solid rgba(46,166,100,.28);border-radius:8px;max-height:185px;overflow-y:auto;display:none}
+.acl.show{display:block}
+.aci{padding:8px 12px;font-size:12px;cursor:pointer;color:rgba(255,255,255,.75);border-bottom:1px solid rgba(255,255,255,.03)}
+.aci:last-child{border:none}
+.aci:hover,.aci.s{background:rgba(46,166,100,.14);color:#fff}
+.aci mark{background:none;color:var(--g3);font-weight:700}
+.btn{background:var(--g2);border:none;border-radius:8px;padding:9px 18px;font-size:12.5px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--syne);transition:all .18s;white-space:nowrap}
+.btn:hover{background:var(--g3);transform:translateY(-1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+/* pipeline */
+.pl{display:none;margin-top:14px;gap:6px;flex-wrap:wrap}
+.pl.show{display:flex}
+.ps{display:flex;align-items:center;gap:5px;font-size:10.5px;padding:4px 9px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);color:rgba(255,255,255,.28);transition:all .25s}
+.ps.run{background:rgba(46,166,100,.12);border-color:rgba(46,166,100,.3);color:var(--g3)}
+.ps.ok{background:rgba(46,166,100,.06);border-color:rgba(46,166,100,.12);color:rgba(93,201,148,.5)}
+.ps.er{background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.18);color:rgba(255,130,130,.5)}
+.pd{width:5px;height:5px;border-radius:50%;background:currentColor}
+/* notes */
+.nb{border-radius:8px;padding:10px 15px;font-size:11px;margin-top:12px;line-height:1.65;display:none}
+.nb.show{display:block}
+.nb.info{background:rgba(46,166,100,.05);border:1px solid rgba(46,166,100,.14);color:rgba(200,232,213,.55);white-space:pre-line}
+.nb.warn{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.18);color:rgba(255,160,160,.7);white-space:pre-line}
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:18px;opacity:0;transition:opacity .4s;pointer-events:none}
+.stats.show{opacity:1;pointer-events:all}
+.sb{background:rgba(255,255,255,.04);border:1px solid rgba(46,166,100,.12);border-radius:8px;padding:10px 12px;text-align:center}
+.sb.hot{border-color:rgba(239,68,68,.22);background:rgba(239,68,68,.04)}
+.sb.sol{border-color:rgba(245,158,11,.22);background:rgba(245,158,11,.03)}
+.sn{font-family:var(--syne);font-size:21px;font-weight:800;color:var(--g3)}
+.sb.hot .sn{color:var(--hot)}
+.sb.sol .sn{color:var(--solar)}
+.sl{font-size:9.5px;color:rgba(200,232,213,.38);margin-top:2px}
+/* filters */
+.fb{display:flex;align-items:center;gap:6px;margin-bottom:13px;flex-wrap:wrap;opacity:0;pointer-events:none;transition:opacity .3s}
+.fb.show{opacity:1;pointer-events:all}
+.fs{display:flex;align-items:center;gap:5px}
+.fp{width:1px;height:16px;background:rgba(255,255,255,.07);margin:0 2px}
+.fl{font-size:9px;color:var(--gray);font-weight:700;letter-spacing:.8px;text-transform:uppercase;white-space:nowrap}
+.fb-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:4px 10px;font-size:11px;color:rgba(255,255,255,.48);cursor:pointer;transition:all .16s;font-family:var(--dm);white-space:nowrap}
+.fb-btn.on{background:rgba(46,166,100,.16);border-color:var(--g3);color:var(--g3)}
+.fb-btn.on.sf{background:rgba(245,158,11,.11);border-color:var(--solar);color:var(--solar)}
+.fb-btn.on.hf{background:rgba(239,68,68,.11);border-color:var(--hot);color:var(--hot)}
+.ss{margin-left:auto;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:4px 9px;font-size:11px;color:rgba(255,255,255,.6);font-family:var(--dm);outline:none;cursor:pointer}
+.ss option{background:#1a3a24}
+/* export */
+.eb{display:flex;justify-content:flex-end;margin-bottom:10px;gap:6px;opacity:0;pointer-events:none;transition:opacity .3s}
+.eb.show{opacity:1;pointer-events:all}
+.bex{background:rgba(46,166,100,.08);border:1px solid rgba(46,166,100,.2);border-radius:7px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--g3);cursor:pointer;font-family:var(--dm)}
+.bex:hover{background:rgba(46,166,100,.16)}
+/* cards */
+#res{display:flex;flex-direction:column;gap:8px}
+.lc{background:rgba(255,255,255,.025);border:1px solid rgba(46,166,100,.1);border-radius:10px;padding:13px 17px;display:grid;grid-template-columns:45px 1fr auto;gap:12px;align-items:center;transition:all .18s;animation:si .25s ease both}
+@keyframes si{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.lc:hover{background:rgba(46,166,100,.05);border-color:rgba(46,166,100,.22);transform:translateX(2px)}
+.lc.s5{border-left:3px solid #EF4444}
+.lc.s4{border-left:3px solid #F0A500}
+.lc.s3{border-left:3px solid var(--g3)}
+.rk{width:42px;height:42px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--syne);font-size:13px;font-weight:800}
+.rk.xl{background:rgba(239,68,68,.13);color:var(--hot)}
+.rk.lg{background:rgba(240,165,0,.13);color:var(--amber)}
+.rk.md{background:rgba(46,166,100,.12);color:var(--g3)}
+.rk.sm{background:rgba(255,255,255,.05);color:rgba(255,255,255,.33)}
+.rll{font-size:6px;font-weight:700;opacity:.7}
+.li2{min-width:0}
+.ln{font-family:var(--syne);font-size:13px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ln.uk{color:rgba(255,255,255,.28);font-style:italic;font-weight:400;font-family:var(--dm)}
+.lm{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.la{font-size:10px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px}
+.lco{font-size:9px;color:rgba(200,232,213,.2);font-family:monospace}
+.tg{display:inline-flex;align-items:center;padding:2px 6px;border-radius:3px;font-size:8px;font-weight:700;letter-spacing:.3px}
+.ti{background:rgba(240,165,0,.1);color:var(--amber)}
+.tw{background:rgba(46,166,100,.1);color:var(--g3)}
+.tc{background:rgba(93,201,148,.08);color:var(--g4)}
+.to{background:rgba(255,255,255,.06);color:rgba(255,255,255,.33)}
+.tsi{background:rgba(245,158,11,.14);color:var(--solar);border:1px solid rgba(245,158,11,.22)}
+.tns{background:rgba(46,166,100,.06);color:rgba(93,201,148,.6)}
+.tin{background:rgba(239,68,68,.09);color:#F87171;border:1px solid rgba(239,68,68,.18)}
+.scb{display:inline-flex;align-items:center;padding:2px 6px;border-radius:3px;font-size:8px;font-weight:700}
+.c5{background:rgba(239,68,68,.1);color:#F87171;border:1px solid rgba(239,68,68,.18)}
+.c4{background:rgba(240,165,0,.1);color:var(--amber)}
+.c3{background:rgba(46,166,100,.1);color:var(--g3)}
+.c2{background:rgba(255,255,255,.05);color:rgba(255,255,255,.38)}
+.ar{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.an{font-family:var(--syne);font-size:18px;font-weight:800;line-height:1}
+.an.xl{color:var(--hot)}.an.lg{color:var(--amber)}.an.md{color:var(--g3)}.an.sm{color:rgba(255,255,255,.28)}
+.au{font-size:9px;color:var(--gray)}
+.ac{display:flex;gap:4px}
+.al{padding:4px 9px;border-radius:6px;font-size:10px;font-weight:600;text-decoration:none;border:1px solid;white-space:nowrap;font-family:var(--dm);transition:all .15s}
+.am{background:rgba(66,133,244,.08);border-color:rgba(66,133,244,.22);color:#7BAAF7}
+.am:hover{background:rgba(66,133,244,.16)}
+.av{background:rgba(255,165,0,.07);border-color:rgba(255,165,0,.2);color:#FFA500}
+.av:hover{background:rgba(255,165,0,.13)}
+#load{display:none;text-align:center;padding:48px 20px}
+#load.show{display:block}
+.spin{width:38px;height:38px;border:3px solid rgba(46,166,100,.12);border-top-color:var(--g3);border-radius:50%;animation:sp .7s linear infinite;margin:0 auto 11px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ltx{font-size:12.5px;color:var(--gray)}
+.lph{font-size:10px;color:rgba(200,232,213,.22);margin-top:4px}
+.msg{text-align:center;padding:48px 20px;font-size:13px;color:var(--gray);line-height:1.9}
+.lgd{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:10.5px;color:rgba(255,255,255,.38);line-height:1.85;display:none}
+.lgd.show{display:block}
+@media(max-width:720px){.sr{grid-template-columns:1fr 1fr}.btn{grid-column:span 2}.stats{grid-template-columns:repeat(3,1fr)}.ar{display:none}main{padding:16px 12px 60px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><div class="li">☀️</div><div><div class="lt">SES Prospector</div><div class="ls">COBERTURAS · LEADS · CER</div></div></div>
+  <div class="ht">OSM · PT · 308 MUNICÍPIOS</div>
+</header>
+<main>
+  <div class="sc">
+    <div class="st">Prospeção <span>maximizada</span></div>
+    <div class="sd">Bboxes hardcoded para todos os municípios PT · Sem dependência de geocoding · 4 fontes em paralelo · Score automático</div>
+    <div class="sr">
+      <div class="fd"><label>Município</label>
+        <div class="acw"><input type="text" id="cidade" placeholder="ex: Vila Nova de Gaia, Matosinhos…" autocomplete="off"><div class="acl" id="acList"></div></div>
+      </div>
+      <div class="fd"><label>Área mínima</label>
+        <select id="minArea">
+          <option value="500">500 m²</option><option value="1000" selected>1.000 m²</option>
+          <option value="1500">1.500 m²</option><option value="2000">2.000 m²</option>
+          <option value="2500">2.500 m²</option><option value="5000">5.000 m²</option>
+          <option value="10000">10.000 m²</option>
+        </select>
+      </div>
+      <div class="fd"><label>Tipo</label>
+        <select id="tipoEdif">
+          <option value="all">Todos</option><option value="classified">Classificados</option>
+          <option value="industrial">Industrial</option><option value="warehouse">Armazém</option>
+          <option value="commercial">Comercial</option>
+        </select>
+      </div>
+      <div class="fd"><label>Ordenar</label>
+        <select id="sortSel" onchange="renderResults()">
+          <option value="score">Score</option><option value="area_desc">Maior área</option>
+          <option value="area_asc">Menor área</option><option value="name_asc">Nome A→Z</option>
+        </select>
+      </div>
+      <button class="btn" id="btnS" onclick="doSearch()">🔍 Pesquisar</button>
+    </div>
+    <div class="pl" id="pl">
+      <div class="ps" id="p0"><div class="pd"></div>Bbox</div>
+      <div class="ps" id="p1"><div class="pd"></div>Edifícios</div>
+      <div class="ps" id="p2"><div class="pd"></div>Zonas ind.</div>
+      <div class="ps" id="p4"><div class="pd"></div>Score</div>
+    </div>
+    <div class="nb warn" id="wb"></div>
+    <div class="nb info" id="ib"></div>
+  </div>
+  <div class="lgd" id="lgd"><strong>Score:</strong> &nbsp;<span style="color:#F87171">■ 5 Quente</span> (grande+zona ind.+sem solar) · <span style="color:var(--amber)">■ 4 Forte</span> (grande+zona ind.) · <span style="color:var(--g3)">■ 3 Bom</span> · <span style="color:rgba(255,255,255,.38)">■ 2/1 Básico</span></div>
+  <div class="stats" id="sb">
+    <div class="sb"><div class="sn" id="s0">—</div><div class="sl">Edifícios OSM</div></div>
+    <div class="sb"><div class="sn" id="s1">—</div><div class="sl">Acima threshold</div></div>
+    <div class="sb hot"><div class="sn" id="s2">—</div><div class="sl">🔥 Leads quentes</div></div>
+    <div class="sb"><div class="sn" id="s3">—</div><div class="sl">Com nome</div></div>
+    <div class="sb sol"><div class="sn" id="s4">—</div><div class="sl">☀️ Solar</div></div>
+    <div class="sb"><div class="sn" id="s5">—</div><div class="sl">Maior m²</div></div>
+  </div>
+  <div class="fb" id="fb">
+    <div class="fs"><span class="fl">Score</span>
+      <button class="fb-btn on" onclick="setF('score','all',this)">Todos</button>
+      <button class="fb-btn hf" onclick="setF('score','hot',this)">🔥 Quentes</button>
+      <button class="fb-btn" onclick="setF('score','good',this)">Bons (3+)</button>
+    </div>
+    <div class="fp"></div>
+    <div class="fs"><span class="fl">Solar</span>
+      <button class="fb-btn on" onclick="setF('solar','all',this)">Todos</button>
+      <button class="fb-btn sf" onclick="setF('solar','has',this)">☀️ Tem</button>
+      <button class="fb-btn" onclick="setF('solar','no',this)">✓ Sem solar</button>
+    </div>
+    <div class="fp"></div>
+    <div class="fs"><span class="fl">Zona</span>
+      <button class="fb-btn on" onclick="setF('zone','all',this)">Todas</button>
+      <button class="fb-btn" onclick="setF('zone','ind',this)">Zona ind.</button>
+    </div>
+    <div class="fp"></div>
+    <div class="fs"><button class="fb-btn" id="nb2" onclick="toggleN(this)">Só com nome</button></div>
+    <select class="ss" onchange="document.getElementById('sortSel').value=this.value;renderResults()">
+      <option value="score">Score</option><option value="area_desc">Maior área</option>
+      <option value="area_asc">Menor área</option><option value="name_asc">Nome A→Z</option>
+    </select>
+  </div>
+  <div class="eb" id="eb">
+    <button class="bex" onclick="exportCSV()">⬇ CSV</button>
+    <button class="bex" onclick="copyList()">📋 Copiar</button>
+  </div>
+  <div id="load"><div class="spin"></div><div class="ltx" id="ltx">A iniciar…</div><div class="lph" id="lph"></div></div>
+  <div id="res"></div>
+</main>
+<script>
+// ── BBOXES [S,N,W,E] para todos os municípios PT ──
+const BBOX={"Abrantes":[39.327,39.558,-8.311,-8.034],"Águeda":[40.448,40.676,-8.571,-8.302],"Aguiar da Beira":[40.752,40.963,-7.68,-7.408],"Alandroal":[38.443,38.722,-7.468,-7.149],"Albergaria-a-Velha":[40.625,40.764,-8.591,-8.428],"Albufeira":[37.023,37.222,-8.337,-8.129],"Alcácer do Sal":[38.176,38.479,-8.76,-8.29],"Alcanena":[39.39,39.53,-8.66,-8.46],"Alcobaça":[39.382,39.645,-9.11,-8.82],"Alcochete":[38.693,38.82,-8.994,-8.826],"Alcoutim":[37.316,37.573,-7.735,-7.412],"Alenquer":[39.011,39.205,-9.118,-8.906],"Alfândega da Fé":[41.296,41.525,-7.001,-6.72],"Alijó":[41.21,41.42,-7.67,-7.31],"Aljezur":[37.236,37.52,-8.917,-8.622],"Aljustrel":[37.783,38.037,-8.362,-8.018],"Almada":[38.627,38.713,-9.218,-9.097],"Almeida":[40.68,40.91,-7.10,-6.82],"Almeirim":[39.138,39.263,-8.712,-8.522],"Almodôvar":[37.419,37.721,-8.199,-7.901],"Alpiarça":[39.18,39.29,-8.65,-8.52],"Alter do Chão":[39.117,39.277,-7.808,-7.581],"Alvaiázere":[39.731,39.875,-8.492,-8.276],"Alvito":[37.998,38.235,-8.128,-7.869],"Amadora":[38.731,38.791,-9.249,-9.188],"Amarante":[41.172,41.475,-8.221,-7.858],"Amares":[41.573,41.732,-8.492,-8.311],"Anadia":[40.351,40.546,-8.527,-8.301],"Ansião":[39.81,39.982,-8.487,-8.274],"Arcos de Valdevez":[41.713,41.886,-8.59,-8.316],"Arganil":[40.07,40.27,-8.21,-7.94],"Armamar":[41.01,41.16,-7.83,-7.62],"Arouca":[40.812,41.005,-8.445,-8.147],"Arraiolos":[38.585,38.888,-8.091,-7.752],"Arronches":[39.024,39.209,-7.302,-7.038],"Arruda dos Vinhos":[38.938,39.093,-9.12,-8.983],"Aveiro":[40.54,40.762,-8.773,-8.523],"Avis":[38.965,39.237,-8.118,-7.701],"Azambuja":[38.999,39.168,-8.974,-8.8],"Baião":[41.094,41.286,-8.228,-7.974],"Barcelos":[41.463,41.657,-8.614,-8.346],"Barrancos":[38.032,38.188,-7.061,-6.851],"Barreiro":[38.64,38.693,-9.097,-9.008],"Batalha":[39.558,39.698,-8.888,-8.737],"Beja":[37.755,38.115,-8.165,-7.660],"Belmonte":[40.279,40.424,-7.521,-7.306],"Benavente":[38.855,39.080,-8.980,-8.690],"Bombarral":[39.218,39.373,-9.225,-9.073],"Borba":[38.654,38.841,-7.559,-7.362],"Boticas":[41.613,41.823,-7.778,-7.476],"Braga":[41.453,41.635,-8.474,-8.258],"Bragança":[41.718,41.992,-7.044,-6.53],"Cabeceiras de Basto":[41.437,41.589,-8.102,-7.93],"Cadaval":[39.166,39.311,-9.199,-9.039],"Caldas da Rainha":[39.34,39.561,-9.191,-8.962],"Caminha":[41.8,41.942,-8.87,-8.671],"Cantanhede":[40.274,40.477,-8.682,-8.447],"Carrazeda de Ansiães":[41.225,41.479,-7.346,-6.984],"Carregal do Sal":[40.41,40.523,-8.04,-7.863],"Cartaxo":[39.076,39.211,-8.903,-8.709],"Cascais":[38.645,38.775,-9.491,-9.328],"Castanheira de Pêra":[40.00,40.12,-8.26,-8.09],"Castelo Branco":[39.754,40.088,-7.613,-7.271],"Castelo de Paiva":[40.998,41.148,-8.373,-8.157],"Castelo de Vide":[39.351,39.56,-7.599,-7.378],"Castro Daire":[40.81,41.019,-8.042,-7.767],"Castro Marim":[37.167,37.453,-7.633,-7.321],"Castro Verde":[37.569,37.835,-8.212,-7.908],"Celorico da Beira":[40.541,40.723,-7.512,-7.281],"Celorico de Basto":[41.34,41.499,-8.17,-7.978],"Chamusca":[39.23,39.487,-8.484,-8.197],"Chaves":[41.698,41.963,-7.593,-7.218],"Cinfães":[41.001,41.218,-8.219,-7.969],"Coimbra":[40.05,40.299,-8.597,-8.303],"Condeixa-a-Nova":[40.05,40.168,-8.554,-8.419],"Constância":[39.43,39.54,-8.45,-8.28],"Coruche":[38.796,39.13,-8.617,-8.209],"Covilhã":[40.2,40.442,-7.652,-7.319],"Crato":[39.219,39.457,-7.92,-7.597],"Cuba":[38.073,38.238,-8.037,-7.812],"Elvas":[38.724,38.998,-7.377,-6.991],"Entroncamento":[39.443,39.501,-8.487,-8.427],"Espinho":[40.975,41.048,-8.668,-8.612],"Esposende":[41.481,41.614,-8.809,-8.677],"Estarreja":[40.722,40.82,-8.648,-8.521],"Estremoz":[38.73,38.979,-7.723,-7.405],"Évora":[38.44,38.703,-8.083,-7.681],"Fafe":[41.4,41.575,-8.252,-8.041],"Faro":[36.95,37.115,-8.103,-7.84],"Felgueiras":[41.295,41.477,-8.239,-8.042],"Ferreira do Alentejo":[37.881,38.118,-8.33,-7.973],"Ferreira do Zêzere":[39.54,39.719,-8.363,-8.109],"Figueira da Foz":[40.004,40.268,-8.964,-8.751],"Figueira de Castelo Rodrigo":[40.798,41.052,-7.092,-6.784],"Figueiró dos Vinhos":[39.861,40.039,-8.362,-8.115],"Fornos de Algodres":[40.58,40.773,-7.533,-7.298],"Freixo de Espada à Cinta":[41.006,41.254,-6.975,-6.722],"Fronteira":[38.91,39.12,-7.74,-7.52],"Fundão":[40.008,40.295,-7.696,-7.358],"Gavião":[39.402,39.633,-7.983,-7.702],"Góis":[40.07,40.22,-8.21,-8.01],"Gondomar":[41.062,41.215,-8.574,-8.382],"Gouveia":[40.428,40.617,-7.727,-7.477],"Grândola":[37.955,38.28,-8.722,-8.392],"Guarda":[40.442,40.713,-7.4,-6.98],"Guimarães":[41.382,41.564,-8.414,-8.21],"Idanha-a-Nova":[39.8,40.12,-7.272,-6.83],"Ílhavo":[40.572,40.659,-8.728,-8.63],"Lagoa":[37.101,37.222,-8.503,-8.338],"Lagos":[37.042,37.278,-8.782,-8.568],"Lamego":[41.012,41.217,-8.008,-7.728],"Leiria":[39.588,39.914,-8.944,-8.651],"Lisboa":[38.662,38.8,-9.229,-9.092],"Loulé":[36.972,37.311,-8.223,-7.876],"Loures":[38.799,38.992,-9.282,-9.069],"Lourinhã":[39.193,39.358,-9.357,-9.148],"Lousã":[40.062,40.202,-8.302,-8.121],"Lousada":[41.242,41.382,-8.321,-8.136],"Macedo de Cavaleiros":[41.462,41.756,-7.053,-6.671],"Mafra":[38.852,39.024,-9.411,-9.172],"Maia":[41.213,41.338,-8.671,-8.508],"Mangualde":[40.584,40.737,-7.818,-7.603],"Manteigas":[40.353,40.49,-7.652,-7.441],"Marco de Canaveses":[41.136,41.302,-8.271,-8.022],"Marinha Grande":[39.632,39.832,-9.083,-8.851],"Matosinhos":[41.168,41.252,-8.774,-8.62],"Mealhada":[40.33,40.481,-8.522,-8.368],"Mêda":[40.842,41.028,-7.312,-6.988],"Melgaço":[41.971,42.086,-8.365,-8.118],"Mesão Frio":[41.128,41.237,-8.04,-7.877],"Miranda do Corvo":[40.052,40.186,-8.381,-8.191],"Miranda do Douro":[41.459,41.651,-6.56,-6.249],"Mirandela":[41.377,41.693,-7.295,-6.917],"Mogadouro":[41.156,41.481,-6.914,-6.454],"Moimenta da Beira":[40.91,41.11,-7.72,-7.45],"Moita":[38.618,38.703,-9.021,-8.883],"Monção":[41.872,42.055,-8.568,-8.29],"Monchique":[37.188,37.473,-8.658,-8.353],"Mondim de Basto":[41.383,41.556,-8.028,-7.851],"Monforte":[38.92,39.12,-7.60,-7.36],"Montalegre":[41.714,41.998,-8.082,-7.578],"Montemor-o-Novo":[38.421,38.752,-8.524,-8.099],"Montemor-o-Velho":[40.118,40.27,-8.737,-8.573],"Montijo":[38.626,38.778,-9.046,-8.826],"Mora":[38.823,39.047,-8.355,-7.971],"Mortágua":[40.32,40.48,-8.27,-8.04],"Moura":[37.885,38.176,-7.602,-7.073],"Mourão":[38.278,38.532,-7.385,-7.048],"Murça":[41.341,41.57,-7.561,-7.262],"Murtosa":[40.701,40.793,-8.72,-8.614],"Nazaré":[39.539,39.646,-9.143,-9.009],"Nelas":[40.514,40.631,-7.924,-7.731],"Nisa":[39.436,39.672,-7.851,-7.551],"Óbidos":[39.271,39.474,-9.217,-8.979],"Odemira":[37.444,37.842,-8.693,-8.282],"Odivelas":[38.759,38.839,-9.22,-9.125],"Oeiras":[38.658,38.751,-9.362,-9.22],"Oleiros":[39.849,40.012,-8.001,-7.728],"Olhão":[36.99,37.097,-7.97,-7.757],"Oliveira de Azeméis":[40.822,40.967,-8.59,-8.42],"Oliveira de Frades":[40.654,40.798,-8.241,-7.991],"Oliveira do Bairro":[40.462,40.578,-8.562,-8.436],"Oliveira do Hospital":[40.261,40.418,-7.993,-7.729],"Ourém":[39.541,39.819,-8.732,-8.435],"Ourique":[37.479,37.799,-8.49,-8.059],"Ovar":[40.822,40.998,-8.699,-8.571],"Paços de Ferreira":[41.263,41.345,-8.425,-8.315],"Palmela":[38.436,38.671,-8.921,-8.613],"Pampilhosa da Serra":[40.01,40.18,-8.17,-7.90],"Paredes":[41.133,41.272,-8.387,-8.213],"Paredes de Coura":[41.8,41.965,-8.634,-8.428],"Penacova":[40.214,40.384,-8.414,-8.211],"Penafiel":[41.133,41.272,-8.385,-8.112],"Penalva do Castelo":[40.73,40.90,-7.72,-7.50],"Penamacor":[40.008,40.229,-7.282,-6.96],"Penedono":[40.97,41.134,-7.499,-7.27],"Penela":[40.00,40.14,-8.46,-8.27],"Peniche":[39.292,39.448,-9.447,-9.287],"Peso da Régua":[41.118,41.243,-7.924,-7.737],"Pinhel":[40.651,40.91,-7.285,-6.988],"Pombal":[39.674,40.015,-8.703,-8.471],"Ponte da Barca":[41.714,41.889,-8.552,-8.319],"Ponte de Lima":[41.683,41.861,-8.732,-8.456],"Ponte de Sor":[39.121,39.442,-8.142,-7.78],"Portalegre":[39.218,39.435,-7.547,-7.249],"Portel":[38.159,38.455,-7.886,-7.551],"Portimão":[37.073,37.287,-8.621,-8.421],"Porto":[41.135,41.186,-8.691,-8.553],"Póvoa de Lanhoso":[41.535,41.640,-8.330,-8.130],"Póvoa de Varzim":[41.343,41.509,-8.779,-8.64],"Proença-a-Nova":[39.742,39.932,-8.046,-7.731],"Redondo":[38.548,38.728,-7.693,-7.479],"Reguengos de Monsaraz":[38.29,38.558,-7.593,-7.301],"Resende":[41.019,41.156,-8.042,-7.784],"Ribeira de Pena":[41.521,41.678,-7.971,-7.737],"Rio Maior":[39.261,39.462,-8.99,-8.79],"Sabrosa":[41.181,41.347,-7.901,-7.652],"Sabugal":[40.237,40.577,-7.131,-6.723],"Salvaterra de Magos":[38.966,39.156,-8.855,-8.658],"Santa Comba Dão":[40.384,40.527,-8.138,-7.96],"Santa Maria da Feira":[40.883,41.028,-8.634,-8.43],"Santa Marta de Penaguião":[41.191,41.319,-7.939,-7.751],"Santarém":[39.113,39.432,-8.784,-8.44],"Santiago do Cacém":[37.813,38.152,-8.797,-8.426],"Santo Tirso":[41.28,41.48,-8.54,-8.35],"São Brás de Alportel":[37.113,37.238,-8.021,-7.82],"São João da Madeira":[40.872,40.941,-8.541,-8.462],"São João da Pesqueira":[41.07,41.22,-7.59,-7.32],"São Pedro do Sul":[40.72,40.93,-8.26,-7.95],"Sardoal":[39.474,39.601,-8.233,-8.092],"Sátão":[40.657,40.828,-7.773,-7.577],"Seia":[40.378,40.635,-7.82,-7.519],"Seixal":[38.613,38.688,-9.124,-9.005],"Serpa":[37.728,38.034,-7.832,-7.198],"Sertã":[39.72,39.96,-8.156,-7.912],"Sesimbra":[38.395,38.543,-9.224,-9.017],"Setúbal":[38.382,38.595,-9.001,-8.784],"Sever do Vouga":[40.668,40.839,-8.597,-8.394],"Silves":[37.094,37.399,-8.56,-8.23],"Sines":[37.894,38.087,-8.929,-8.716],"Sintra":[38.73,38.97,-9.522,-9.198],"Soure":[39.997,40.178,-8.747,-8.499],"Tábua":[40.272,40.439,-8.132,-7.905],"Tabuaço":[41.03,41.21,-7.75,-7.51],"Tarouca":[40.981,41.138,-7.853,-7.603],"Tavira":[37.083,37.443,-7.843,-7.519],"Terras de Bouro":[41.654,41.849,-8.402,-8.139],"Tomar":[39.474,39.712,-8.549,-8.218],"Tondela":[40.404,40.646,-8.202,-7.92],"Torre de Moncorvo":[41.11,41.327,-7.239,-6.914],"Torres Novas":[39.373,39.589,-8.612,-8.376],"Torres Vedras":[38.996,39.221,-9.327,-9.043],"Trancoso":[40.737,40.972,-7.482,-7.228],"Trofa":[41.323,41.436,-8.591,-8.448],"Valença":[41.971,42.098,-8.72,-8.483],"Valongo":[41.148,41.252,-8.553,-8.418],"Valpaços":[41.523,41.797,-7.484,-7.12],"Vendas Novas":[38.558,38.728,-8.58,-8.361],"Viana do Alentejo":[38.213,38.471,-8.186,-7.875],"Viana do Castelo":[41.68,41.888,-8.748,-8.529],"Vidigueira":[38.062,38.271,-7.87,-7.568],"Vieira do Minho":[41.58,41.76,-8.24,-7.99],"Vila de Rei":[39.601,39.779,-8.211,-8.007],"Vila do Bispo":[36.996,37.178,-8.993,-8.733],"Vila do Conde":[41.3,41.468,-8.782,-8.598],"Vila Flor":[41.215,41.421,-7.032,-6.842],"Vila Franca de Xira":[38.837,39.097,-9.097,-8.878],"Vila Nova da Barquinha":[39.423,39.53,-8.523,-8.39],"Vila Nova de Cerveira":[41.882,42.03,-8.778,-8.63],"Vila Nova de Famalicão":[41.313,41.497,-8.557,-8.354],"Vila Nova de Foz Côa":[41.011,41.229,-7.228,-6.949],"Vila Nova de Gaia":[40.993,41.168,-8.701,-8.503],"Vila Nova de Paiva":[40.80,40.98,-7.77,-7.54],"Vila Nova de Poiares":[40.17,40.30,-8.30,-8.13],"Vila Pouca de Aguiar":[41.401,41.657,-7.718,-7.459],"Vila Real":[41.22,41.488,-7.828,-7.506],"Vila Real de Santo António":[37.164,37.317,-7.503,-7.378],"Vila Velha de Ródão":[39.641,39.819,-7.745,-7.517],"Vila Verde":[41.550,41.685,-8.470,-8.300],"Vila Viçosa":[38.582,38.771,-7.532,-7.307],"Vimioso":[41.541,41.779,-6.84,-6.427],"Vinhais":[41.717,41.999,-7.31,-6.898],"Viseu":[40.565,40.790,-7.990,-7.730],"Vizela":[41.36,41.46,-8.351,-8.241],"Vouzela":[40.679,40.832,-8.168,-7.951]};
+
+const MUNICIPIOS=Object.keys(BBOX).sort();
+
+// ── Autocomplete ──
+const inp=document.getElementById('cidade'),acL=document.getElementById('acList');
+let acI=-1;
+inp.addEventListener('input',()=>{
+  const v=inp.value.trim().toLowerCase();acI=-1;
+  if(v.length<2){acL.classList.remove('show');return;}
+  const m=MUNICIPIOS.filter(x=>x.toLowerCase().includes(v)).slice(0,10);
+  if(!m.length){acL.classList.remove('show');return;}
+  acL.innerHTML=m.map(x=>{const i=x.toLowerCase().indexOf(v);
+    return `<div class="aci" onmousedown="pM('${x.replace(/'/g,"\\'")}')">` +
+      x.slice(0,i)+'<mark>'+x.slice(i,i+v.length)+'</mark>'+x.slice(i+v.length)+'</div>';
+  }).join('');acL.classList.add('show');
+});
+inp.addEventListener('keydown',e=>{
+  const its=acL.querySelectorAll('.aci');
+  if(e.key==='ArrowDown'){acI=Math.min(acI+1,its.length-1);hAC(its);e.preventDefault();}
+  else if(e.key==='ArrowUp'){acI=Math.max(acI-1,-1);hAC(its);e.preventDefault();}
+  else if(e.key==='Enter'){if(acI>=0&&its[acI])pM(its[acI].textContent);else{acL.classList.remove('show');doSearch();};}
+  else if(e.key==='Escape')acL.classList.remove('show');
+});
+function hAC(its){its.forEach((el,i)=>el.classList.toggle('s',i===acI));if(acI>=0)its[acI].scrollIntoView({block:'nearest'});}
+function pM(n){inp.value=n;acL.classList.remove('show');acI=-1;}
+document.addEventListener('click',e=>{if(!e.target.closest('.acw'))acL.classList.remove('show');});
+
+// ── Geometry ──
+function area(nodes){
+  if(!nodes||nodes.length<3)return 0;
+  const lm=111320,lo=111320*Math.cos(nodes[0].lat*Math.PI/180);
+  let a=0,n=nodes.length;
+  for(let i=0;i<n;i++){const j=(i+1)%n;a+=(nodes[i].lon*lo)*(nodes[j].lat*lm)-(nodes[j].lon*lo)*(nodes[i].lat*lm);}
+  return Math.abs(a)/2;
+}
+function ctr(nodes){return{lat:+(nodes.reduce((s,n)=>s+n.lat,0)/nodes.length).toFixed(6),lon:+(nodes.reduce((s,n)=>s+n.lon,0)/nodes.length).toFixed(6)};}
+function dst(a,b){const R=6371000,dLat=(b.lat-a.lat)*Math.PI/180,dLon=(b.lon-a.lon)*Math.PI/180,x=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)**2;return R*2*Math.asin(Math.sqrt(x));}
+function pip(pt,poly){let ins=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const xi=poly[i].lon,yi=poly[i].lat,xj=poly[j].lon,yj=poly[j].lat;if(((yi>pt.lat)!==(yj>pt.lat))&&(pt.lon<(xj-xi)*(pt.lat-yi)/(yj-yi)+xi))ins=!ins;}return ins;}
+
+// ── Overpass - query como string simples, sem newlines ──
+const EPS=['https://overpass-api.de/api/interpreter','https://overpass.private.coffee/api/interpreter','https://maps.mail.ru/osm/tools/overpass/api/interpreter','https://overpass.kumi.systems/api/interpreter'];
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function oq(ql,opts={}){
+  const tries=opts.tries??4, silent=opts.silent||false;
+  let err='';
+  for(let pass=0;pass<tries;pass++){
+    for(const ep of EPS){
+      try{
+        const r=await fetch(ep,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(ql)});
+        if(!r.ok){err='HTTP '+r.status;continue;}
+        const j=await r.json();
+        if(!Array.isArray(j.elements)){err='resposta inválida';continue;}
+        return j.elements; // sucesso
+      }catch(e){err=e.message;}
+    }
+    // Todas as tentativas desta passagem falharam — esperar e repetir (servidor ocupado)
+    if(pass<tries-1){
+      if(!silent)sL(true,'Servidor OpenStreetMap ocupado — a repetir automaticamente ('+(pass+2)+'/'+tries+')…','');
+      await sleep(800*(pass+1));
+    }
+  }
+  if(!silent)console.warn('oq falhou:',err,ql.slice(0,80));
+  return []; // nunca lança exceção
+}
+function pst(id,s){const e=document.getElementById(id);if(e)e.className='ps'+(s?' '+s:'');}
+
+let allB=[],AF={score:'all',solar:'all',zone:'all',named:false};
+
+async function doSearch(){
+  const cidade=inp.value.trim();
+  if(!cidade){alert('Insere um município.');return;}
+  const bb=BBOX[cidade]||Object.entries(BBOX).find(([k])=>k.toLowerCase()===cidade.toLowerCase())?.[1];
+  if(!bb){note('warn',`"${cidade}" não encontrado.\nEscolhe da lista com autocomplete (↓ enquanto escreves).`);return;}
+
+  let [S,N,W,E]=bb;
+  const minA=parseInt(document.getElementById('minArea').value);
+  const tipo=document.getElementById('tipoEdif').value;
+  // Reset
+  ['wb','ib'].forEach(id=>{const e=document.getElementById(id);e.classList.remove('show');e.textContent='';});
+  document.getElementById('lgd').classList.remove('show');
+  ['sb','fb','eb'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  document.getElementById('res').innerHTML='';
+  allB=[];
+  document.getElementById('pl').classList.add('show');
+  ['p0','p1','p2','p4'].forEach(id=>pst(id,''));
+  sL(true,'A iniciar…','');
+  document.getElementById('btnS').disabled=true;
+
+  let bEls=[],iPolys=[];
+  const inf=[];
+
+  // P0 — bbox real via Overpass (limites administrativos oficiais)
+  pst('p0','run');sL(true,'A obter limites do município…','');
+  try{
+    // Query para obter a bbox real do município no OSM (admin_level 7 = concelho em PT)
+    // Pede também admin_centre e valida para escolher a relation correta
+    const qb=`[out:json][timeout:20];relation["name"="${cidade}"]["admin_level"="7"]["boundary"="administrative"];out bb;`;
+    let rEls=await oq(qb,{tries:1,silent:true});
+    // Fallback: sem boundary explícito
+    if(!rEls.some(e=>e.bounds)){
+      rEls=await oq(`[out:json][timeout:20];relation["name"="${cidade}"]["admin_level"="7"];out bb;`,{tries:1,silent:true});
+    }
+    // Fallback: admin_level 6 (alguns concelhos podem estar assim)
+    if(!rEls.some(e=>e.bounds)){
+      rEls=await oq(`[out:json][timeout:20];relation["name"="${cidade}"]["admin_level"="6"]["boundary"="administrative"];out bb;`,{tries:1,silent:true});
+    }
+    // Escolher a relation com bounds VÁLIDOS e área mais próxima da esperada (não a maior nem freguesia minúscula)
+    const candidatos=rEls.filter(e=>e.bounds).map(e=>{
+      const b=e.bounds;
+      const ar=(b.maxlat-b.minlat)*111*(b.maxlon-b.minlon)*111*0.73;
+      return {b,ar};
+    });
+    const aHard=(N-S)*111*(E-W)*111*0.73;
+    if(candidatos.length>0){
+      // Escolher o candidato cuja área está entre 20% e 250% da hardcoded (o município real)
+      let escolhido=candidatos.find(c=>c.ar>=aHard*0.2&&c.ar<=aHard*2.5);
+      if(!escolhido){
+        // senão, o de maior área (mais provável ser o concelho e não uma freguesia)
+        escolhido=candidatos.sort((a,b)=>b.ar-a.ar)[0];
+      }
+      if(escolhido&&escolhido.ar>0&&escolhido.ar<aHard*3){
+        S=escolhido.b.minlat;N=escolhido.b.maxlat;W=escolhido.b.minlon;E=escolhido.b.maxlon;
+        inf.push(`📍 ${cidade} · limites oficiais OSM (${escolhido.ar.toFixed(0)} km²)`);
+      } else {
+        inf.push(`📍 ${cidade} · bbox predefinida (OSM fora do intervalo esperado)`);
+      }
+    } else {
+      inf.push(`📍 ${cidade} · bbox predefinida (OSM sem resposta)`);
+    }
+    const areaBbox2=(N-S)*111*(E-W)*111*0.73;
+    inf.push(`📐 Área: ${areaBbox2.toFixed(0)} km²`);
+    pst('p0','ok');
+  }catch(e){
+    inf.push(`📍 ${cidade} · bbox hardcoded (fallback)`);
+    pst('p0','ok');
+  }
+  // Recalcular isLarge com bbox real
+  const areaBbox=(N-S)*111*(E-W)*111*0.73;
+  const isLarge=areaBbox>250;
+
+  // Filtro de tipo (string sem espaços para embeddar na query)
+  const CLF='"building"~"^(industrial|warehouse|factory|manufacture|storage|distribution|hangar|commercial|retail|supermarket|office|sports_centre)$"';
+  let TF;
+  if(tipo==='industrial') TF='["building"~"^(industrial|factory|manufacture)$"]';
+  else if(tipo==='warehouse') TF='["building"="warehouse"]';
+  else if(tipo==='commercial') TF='["building"~"^(commercial|retail|supermarket)$"]';
+  else if(tipo==='classified'||isLarge) TF=`[${CLF}]`;
+  else TF='["building"]';
+
+  if(isLarge) inf.push(`📐 Município grande (${areaBbox.toFixed(0)} km²) — query focada em edifícios classificados`);
+
+  // P1 — edifícios (oq() nunca lança — devolve [] em erro)
+  pst('p1','run');sL(true,'A carregar edifícios…','1/2');
+
+  // Filtro classificado ALARGADO — tudo com potencial, mas SEM casas residenciais
+  const CLF_WIDE='["building"~"^(industrial|warehouse|factory|manufacture|storage|distribution|hangar|commercial|retail|supermarket|office|sports_centre|civic|public|hospital|school|university|college|government|hotel|farm|barn|agricultural|greenhouse|stable|cowshed|farm_auxiliary|shed|service|construction|roof|chapel|church|kindergarten)$"]';
+
+  const isGiant=areaBbox>800;
+  const tmt=isLarge?55:45;
+  let via='';
+
+  if(isGiant){
+    // GIGANTE (>800km²): dividir em 4 quadrantes com filtro alargado
+    inf.push('🗺️ Município muito grande — dividido em 4 zonas...');
+    const midLat=(S+N)/2, midLon=(W+E)/2;
+    const quads=[[S,W,midLat,midLon],[S,midLon,midLat,E],[midLat,W,N,midLon],[midLat,midLon,N,E]];
+    let seen={};
+    for(let qi=0;qi<quads.length;qi++){
+      sL(true,`A pesquisar zona ${qi+1} de 4…`,'');
+      const [qS,qW,qN,qE]=quads[qi];
+      const part=await oq(`[out:json][timeout:50][bbox:${qS},${qW},${qN},${qE}];(way${CLF_WIDE};);out body geom qt;`);
+      for(const el of part){ if(!seen[el.id]){ seen[el.id]=1; bEls.push(el); } }
+    }
+    via='4 quadrantes (filtro alargado)';
+  } else if(isLarge){
+    // GRANDE (250-800km²): filtro alargado numa query
+    sL(true,'A carregar edifícios (filtro alargado)…','1/2');
+    bEls=await oq(`[out:json][timeout:${tmt}][bbox:${S},${W},${N},${E}];(way${CLF_WIDE};);out body geom qt;`);
+    via='filtro alargado';
+  } else {
+    // PEQUENO/MÉDIO (<250km²): filtro de tipo escolhido
+    bEls=await oq(`[out:json][timeout:${tmt}][bbox:${S},${W},${N},${E}];(way${TF};);out body geom qt;`);
+    via='filtro '+tipo;
+    // Se 0, tentar todos os edifícios
+    if(bEls.length===0){
+      inf.push('ℹ️ A tentar todos os edifícios...');
+      bEls=await oq(`[out:json][timeout:50][bbox:${S},${W},${N},${E}];(way["building"];);out body geom qt;`);
+      via='todos os edifícios';
+    }
+  }
+
+  // ── SALVAGUARDA UNIVERSAL: se ainda 0, tentar filtro alargado na bbox (qualquer que seja o ramo) ──
+  if(bEls.length===0){
+    inf.push('ℹ️ Salvaguarda: filtro alargado direto...');
+    sL(true,'Última tentativa…','');
+    bEls=await oq(`[out:json][timeout:50][bbox:${S},${W},${N},${E}];(way${CLF_WIDE};);out body geom qt;`);
+    if(bEls.length>0)via='salvaguarda alargada';
+  }
+  // ── SALVAGUARDA 2: bbox hardcoded original se a do OSM não deu nada ──
+  if(bEls.length===0){
+    const bbH=BBOX[cidade];
+    if(bbH){
+      const [hS,hN,hW,hE]=bbH;
+      inf.push('ℹ️ Salvaguarda 2: bbox predefinida...');
+      bEls=await oq(`[out:json][timeout:50][bbox:${hS},${hW},${hN},${hE}];(way${CLF_WIDE};);out body geom qt;`);
+      if(bEls.length>0)via='bbox predefinida';
+    }
+  }
+
+  inf.push(`🏭 ${bEls.length} edifícios (via ${via||'sem resultado'})`);
+  pst('p1', bEls.length>0?'ok':'er');
+
+  // P2 — zonas industriais
+  pst('p2','run');sL(true,'A detetar zonas industriais…','2/2');
+  try{
+    const q=`[out:json][timeout:25][bbox:${S},${W},${N},${E}];(way["landuse"="industrial"];way["landuse"="commercial"];);out body geom qt;`;
+    const els=await oq(q,{tries:2,silent:true});
+    iPolys=els.filter(e=>e.type==='way'&&e.geometry&&e.geometry.length>2);
+    inf.push(`🏗️ ${iPolys.length} zonas industriais`);
+    pst('p2','ok');
+  }catch(e){pst('p2','er');}
+
+  // P3 (solar) removido para pesquisas mais rápidas
+
+  // P4 — processar + score
+  pst('p4','run');sL(true,'A calcular scores…','');
+  const MAX=100000;
+  let skip=0;
+  const builds=[];
+  for(const el of bEls){
+    if(el.type!=='way'||!el.geometry)continue;
+    const a=Math.round(area(el.geometry));
+    if(a<minA)continue;
+    if(a>MAX){skip++;continue;}
+    const t=el.tags||{},c=ctr(el.geometry);
+    const bt=t.building||'yes';
+    const hasSolar=['generator:source','plant:source','roof:material'].some(k=>t[k]&&t[k].toLowerCase().includes('solar'));
+    const inInd=iPolys.some(p=>pip(c,p.geometry));
+    const isCl=['industrial','warehouse','factory','manufacture','commercial','retail','storage','distribution','hangar','supermarket','office','sports_centre'].includes(bt);
+    let sc=1;
+    if(a>=5000)sc+=2;else if(a>=2000)sc+=1;
+    if(inInd)sc+=1;if(isCl)sc+=1;if(hasSolar)sc-=1;
+    sc=Math.max(1,Math.min(5,sc));
+    builds.push({id:el.id,name:t.name||t['name:pt']||t['operator']||'',area:a,bt,isCl,addr:[t['addr:street'],t['addr:housenumber'],t['addr:city']].filter(Boolean).join(', '),lat:c.lat,lon:c.lon,hasSolar,inInd,sc});
+  }
+  builds.sort((a,b)=>b.sc-a.sc||b.area-a.area);
+  allB=builds;
+  pst('p4','ok');
+
+  // Stats
+  const hot=builds.filter(b=>b.sc>=4).length,named=builds.filter(b=>b.name).length,wSol=builds.filter(b=>b.hasSolar).length,big=builds.length?builds[0].area:0;
+  document.getElementById('s0').textContent=bEls.length;
+  document.getElementById('s1').textContent=builds.length;
+  document.getElementById('s2').textContent=hot;
+  document.getElementById('s3').textContent=named;
+  document.getElementById('s4').textContent=wSol;
+  document.getElementById('s5').textContent=big?big.toLocaleString('pt-PT'):'—';
+  ['sb','fb','lgd'].forEach(id=>document.getElementById(id).classList.add('show'));
+  if(builds.length)document.getElementById('eb').classList.add('show');
+
+  note('info',inf.join('\n'));
+  if(skip>0)note('info',`ℹ️ ${skip} polígonos >100.000m² excluídos.`);
+  if(bEls.length===0){
+    note('warn',`Nenhum edifício encontrado em "${cidade}".\n• Muda o Tipo para "Todos" e tenta de novo\n• Zonas rurais têm menos dados no OpenStreetMap\n• A API Overpass pode estar lenta — aguarda 30s e repete`);
+  } else if(builds.length===0){
+    note('warn',`Foram encontrados ${bEls.length} edifícios em "${cidade}", mas nenhum acima de ${minA.toLocaleString('pt-PT')} m².\n➜ Reduz a "Área mínima" para 500 m² e pesquisa de novo — em zonas rurais os edifícios são mais pequenos.`);
+  }
+
+  sL(false);document.getElementById('btnS').disabled=false;
+  renderResults();
+}
+
+function renderResults(){
+  const srt=document.getElementById('sortSel').value;
+  let lst=allB.filter(b=>{
+    if(AF.score==='hot'&&b.sc<4)return false;
+    if(AF.score==='good'&&b.sc<3)return false;
+    if(AF.solar==='has'&&!b.hasSolar)return false;
+    if(AF.solar==='no'&&b.hasSolar)return false;
+    if(AF.zone==='ind'&&!b.inInd)return false;
+    if(AF.named&&!b.name)return false;
+    return true;
+  });
+  if(srt==='area_desc')lst.sort((a,b)=>b.area-a.area);
+  else if(srt==='area_asc')lst.sort((a,b)=>a.area-b.area);
+  else if(srt==='name_asc')lst.sort((a,b)=>(a.name||'zzz').localeCompare(b.name||'zzz'));
+  else lst.sort((a,b)=>b.sc-a.sc||b.area-a.area);
+
+  const C=document.getElementById('res');
+  if(!lst.length&&allB.length===0){C.innerHTML='';return;}
+  if(!lst.length){C.innerHTML='<div class="msg">Sem resultados com este filtro.</div>';return;}
+  // Limitar render a 300 cards para não travar o browser em municípios densos
+  const totalLst=lst.length;
+  const LIMIT=300;
+  if(lst.length>LIMIT)lst=lst.slice(0,LIMIT);
+
+  const TL={industrial:'Industrial',warehouse:'Armazém',commercial:'Comercial',retail:'Retalho',factory:'Fábrica',manufacture:'Manufactura',storage:'Armazém',distribution:'Distribuição',hangar:'Hangar',supermarket:'Supermercado',office:'Escritórios',sports_centre:'Desporto',yes:'Edifício',other:'Outro'};
+  const TC={industrial:'ti',warehouse:'tw',commercial:'tc',retail:'tc',factory:'ti',manufacture:'ti',storage:'tw',yes:'to',other:'to'};
+  const SL={5:'🔥 Lead quente',4:'⭐ Lead forte',3:'👍 Bom lead',2:'Básico',1:'Básico'};
+  const SC={5:'c5',4:'c4',3:'c3',2:'c2',1:'c2'};
+  const RC={5:'xl',4:'lg',3:'md',2:'sm',1:'sm'};
+
+  C.innerHTML=lst.map((b,i)=>{
+    const rc=RC[b.sc]||'sm';
+    const mu=`https://www.google.com/maps/search/?api=1&query=${b.lat},${b.lon}`;
+    const sv=`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${b.lat},${b.lon}`;
+    const tl=TL[b.bt]||b.bt,tc=TC[b.bt]||'to';
+    const ac=b.area>=10000?'xl':b.area>=5000?'lg':b.area>=2000?'md':'sm';
+    return `<div class="lc s${b.sc}" style="animation-delay:${Math.min(i*.022,.5)}s">
+      <div class="rk ${rc}">${i+1}<span class="rll">${['','','','⭐','🔥'][b.sc-1]||''}</span></div>
+      <div class="li2">
+        ${b.name?`<div class="ln">${b.name}</div>`:`<div class="ln uk">Sem nome · ver no Maps</div>`}
+        <div class="lm">
+          <span class="tg ${tc}">${tl}</span>
+          <span class="scb ${SC[b.sc]}">${SL[b.sc]}</span>
+          ${b.hasSolar?'<span class="tg tsi">☀️ Solar</span>':'<span class="tg tns">✓ Sem solar</span>'}
+          ${b.inInd?'<span class="tg tin">🏗️ Zona ind.</span>':''}
+          ${b.addr?`<span class="la">📍 ${b.addr}</span>`:''}
+          <span class="lco">${b.lat}, ${b.lon}</span>
+        </div>
+      </div>
+      <div class="ar">
+        <div><div class="an ${ac}">${b.area.toLocaleString('pt-PT')}</div><div class="au">m² estimados</div></div>
+        <div class="ac"><a class="al am" href="${mu}" target="_blank">Maps</a><a class="al av" href="${sv}" target="_blank">StreetView</a></div>
+      </div>
+    </div>`;
+  }).join('');
+  if(totalLst>LIMIT){const d=document.createElement('div');d.className='msg';d.innerHTML=`A mostrar os primeiros <b>${LIMIT}</b> de <b>${totalLst}</b> resultados. Usa os filtros (score, zona, área mínima) para refinar.`;C.appendChild(d);}
+}
+
+function setF(dim,val,btn){btn.closest('.fs').querySelectorAll('.fb-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');AF[dim]=val;renderResults();}
+function toggleN(btn){AF.named=!AF.named;btn.classList.toggle('on',AF.named);renderResults();}
+function sL(show,txt,ph){document.getElementById('load').classList.toggle('show',show);if(txt)document.getElementById('ltx').textContent=txt;if(ph!==undefined)document.getElementById('lph').textContent=ph;}
+function note(type,msg){const el=document.getElementById(type==='warn'?'wb':'ib');el.textContent=(el.textContent?el.textContent+'\n':'')+msg;el.classList.add('show');}
+function exportCSV(){
+  const rows=[['#','Nome','Tipo','Área m²','Score','Lead quente','Solar','Zona industrial','Lat','Lon','Morada','Maps']];
+  allB.forEach((b,i)=>rows.push([i+1,b.name||'(sem nome)',b.bt,b.area,b.sc,b.sc>=4?'Sim':'Não',b.hasSolar?'Sim':'Não',b.inInd?'Sim':'Não',b.lat,b.lon,b.addr||'',`https://www.google.com/maps/search/?api=1&query=${b.lat},${b.lon}`]));
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download=`SES_${inp.value.replace(/\s/g,'_')}.csv`;a.click();
+}
+function copyList(){
+  const t=allB.map((b,i)=>`${i+1}. [${b.sc}★] ${b.name||'(sem nome)'} | ${b.area.toLocaleString('pt-PT')}m² | ${b.hasSolar?'☀️':'✓'} ${b.hasSolar?'Solar':'Sem solar'}${b.inInd?' | 🏗️':''} | ${b.lat},${b.lon}${b.addr?' | '+b.addr:''}`).join('\n');
+  navigator.clipboard.writeText(t).then(()=>alert(`${allB.length} leads copiados!`));
+}
+</script>
+</body>
+</html>
